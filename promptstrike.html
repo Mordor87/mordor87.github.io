@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PromptStrike — Offensive AI Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;0,900;1,300;1,600&family=DM+Serif+Text:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f7f6f2;
+  --bg2:#eeeae0;
+  --ink:#0f0e0c;
+  --ink2:#4a4640;
+  --ink3:#9a948c;
+  --accent:#d63a2f;
+  --accent2:#ff6b5b;
+  --border:#ddd9cf;
+  --white:#ffffff;
+  --mono:'IBM Plex Mono',monospace;
+  --transition: background .3s ease, color .3s ease, border-color .3s ease;
+}
+
+html.dark{
+  --bg:#0e0d0b;
+  --bg2:#181612;
+  --ink:#f0ede6;
+  --ink2:#a09890;
+  --ink3:#5a5450;
+  --accent:#ff5a47;
+  --accent2:#ff7a6b;
+  --border:#2a2724;
+  --white:#1a1815;
+}
+
+/* Smooth theme transition */
+body,
+.nav,.hero,.stats,.sidebar-card,.newsletter-card,
+.toc,.callout,.pullquote,.subscribe-dark,.site-footer,
+.author-hero,.post-item,.post-featured,.a-body p,
+.a-body h2,.a-body h3,input,code{
+  transition: var(--transition);
+}
+
+/* DARK MODE TOGGLE BUTTON */
+.theme-toggle{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg2);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s ease;flex-shrink:0;
+}
+.theme-toggle:hover{border-color:var(--accent);background:var(--bg)}
+.theme-toggle svg{width:16px;height:16px;fill:var(--ink2);transition:fill .2s}
+.theme-toggle:hover svg{fill:var(--accent)}
+/* Show/hide sun vs moon */
+.icon-sun{display:none}
+.icon-moon{display:block}
+html.dark .icon-sun{display:block}
+html.dark .icon-moon{display:none}
+
+/* Dark mode specific overrides */
+html.dark .pullquote{background:#1a1512}
+html.dark .subscribe-dark{background:#1a1512;border:1px solid var(--border)}
+html.dark .newsletter-card{background:#1a1512;border:1px solid var(--border)}
+html.dark .site-footer{background:#070605}
+html.dark code{background:#1a1512;border-color:#2a2724}
+html.dark .hero{background:radial-gradient(ellipse 70% 60% at 50% 110%, rgba(255,90,71,.07) 0%, transparent 70%), var(--bg)}
+html.dark .nav{background:rgba(14,13,11,.95);backdrop-filter:blur(8px)}
+html.dark .stats{background:var(--bg2)}
+html.dark .sidebar-card{background:var(--bg2);border-color:var(--border)}
+html.dark .toc{background:var(--bg2)}
+html.dark .callout{background:var(--bg2)}
+html.dark .hero-subscribe input{background:var(--bg2)}
+html.dark .sub-form input,.dark .newsletter-card input{background:rgba(255,255,255,.05)}
+html.dark .author-big-av,.dark .byline-av,.dark .author-avatar{background:#d63a2f;color:#fff}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'DM Serif Text',Georgia,serif;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+/* PAGE SYSTEM */
+.page{display:none}
+.page.active{display:block}
+
+/* READING PROGRESS */
+#progress{
+  position:fixed;top:0;left:0;height:3px;
+  background:var(--accent);width:0%;z-index:300;
+  transition:width .08s linear;
+}
+
+/* ══════════════ NAV ══════════════ */
+.nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:60px;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:.6rem;
+  text-decoration:none;cursor:pointer;
+}
+.nav-logo-mark{
+  width:32px;height:32px;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  clip-path:polygon(0 0,100% 0,100% 75%,75% 100%,0 100%);
+}
+.nav-logo-mark svg{width:16px;height:16px;fill:#fff}
+.nav-logo-text{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:1.15rem;font-weight:700;
+  color:var(--ink);letter-spacing:-.01em;
+}
+.nav-logo-text span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-link{
+  font-family:var(--mono);font-size:.72rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink2);cursor:pointer;text-decoration:none;
+  transition:color .15s;border:none;background:none;
+}
+.nav-link:hover{color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:.75rem}
+.btn{
+  padding:.45rem 1.2rem;border-radius:2px;
+  font-family:var(--mono);font-size:.72rem;
+  font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;border:none;transition:all .18s;text-decoration:none;
+}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--ink2);color:var(--ink)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#b52e24}
+
+/* ══════════════ HOME PAGE ══════════════ */
+
+/* HERO */
+.hero{
+  border-bottom:1px solid var(--border);
+  padding:5rem 2rem 4rem;
+  text-align:center;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 110%, rgba(214,58,47,.06) 0%, transparent 70%),
+    var(--bg);
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.68rem;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:1.5rem;
+}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:clamp(2.8rem,7vw,5rem);
+  font-weight:900;line-height:1.05;
+  letter-spacing:-.03em;color:var(--ink);
+  margin-bottom:.75rem;
+}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{
+  font-size:1rem;color:var(--ink2);
+  max-width:480px;margin:0 auto 2.5rem;
+  font-style:italic;line-height:1.6;
+}
+.hero-subscribe{
+  display:flex;gap:.5rem;max-width:420px;margin:0 auto 1rem;
+}
+.hero-subscribe input{
+  flex:1;padding:.7rem 1.1rem;
+  border:1px solid var(--border);
+  background:var(--white);color:var(--ink);
+  font-family:'DM Serif Text',serif;font-size:.9rem;
+  border-radius:2px;outline:none;
+  transition:border-color .15s;
+}
+.hero-subscribe input:focus{border-color:var(--accent)}
+.hero-note{
+  font-family:var(--mono);font-size:.65rem;
+  color:var(--ink3);letter-spacing:.04em;
+}
+
+/* STATS BAR */
+.stats{
+  display:flex;justify-content:center;gap:3rem;
+  border-bottom:1px solid var(--border);
+  padding:1.2rem 2rem;background:var(--bg2);
+}
+.stat{text-align:center}
+.stat-n{
+  font-family:'Fraunces',serif;font-size:1.4rem;
+  font-weight:700;color:var(--ink);display:block;
+}
+.stat-l{
+  font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+}
+
+/* MAIN LAYOUT */
+.home-body{
+  max-width:1100px;margin:0 auto;
+  padding:3rem 2rem;
+  display:grid;grid-template-columns:1fr 340px;
+  gap:4rem;
+}
+@media(max-width:800px){.home-body{grid-template-columns:1fr;gap:2rem}}
+
+/* POST LIST */
+.section-label{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink3);padding-bottom:.75rem;
+  border-bottom:2px solid var(--ink);
+  margin-bottom:2rem;
+}
+
+/* FEATURED POST */
+.post-featured{
+  border-bottom:1px solid var(--border);
+  padding-bottom:2.5rem;margin-bottom:2.5rem;
+  cursor:pointer;
+}
+.post-featured:hover .post-title{color:var(--accent)}
+.post-tag{
+  display:inline-block;
+  font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);background:rgba(214,58,47,.08);
+  padding:.2rem .6rem;border-radius:2px;
+  margin-bottom:.75rem;
+}
+.post-featured .post-title{
+  font-family:'Fraunces',serif;
+  font-size:1.7rem;font-weight:700;
+  line-height:1.2;letter-spacing:-.02em;
+  color:var(--ink);margin-bottom:.6rem;
+  transition:color .15s;
+}
+.post-featured .post-excerpt{
+  color:var(--ink2);font-size:.95rem;
+  line-height:1.65;margin-bottom:1rem;
+  font-style:italic;
+}
+.post-meta{
+  display:flex;align-items:center;gap:1rem;
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.04em;color:var(--ink3);
+}
+.post-meta-dot{color:var(--border)}
+.read-more{
+  font-family:var(--mono);font-size:.68rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);text-decoration:none;
+  display:inline-flex;align-items:center;gap:.4rem;
+  transition:gap .15s;cursor:pointer;border:none;background:none;
+}
+.read-more:hover{gap:.7rem}
+
+/* POST LIST ITEMS */
+.post-item{
+  display:flex;gap:1.2rem;padding:1.4rem 0;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+}
+.post-item:hover .post-item-title{color:var(--accent)}
+.post-num{
+  font-family:'Fraunces',serif;font-size:2rem;
+  font-weight:900;color:var(--border);line-height:1;
+  flex-shrink:0;width:2.5rem;text-align:right;
+  margin-top:.2rem;
+}
+.post-item-title{
+  font-family:'Fraunces',serif;font-size:1.05rem;
+  font-weight:600;letter-spacing:-.01em;
+  color:var(--ink);margin-bottom:.3rem;
+  transition:color .15s;line-height:1.3;
+}
+.post-item-excerpt{
+  font-size:.85rem;color:var(--ink3);
+  font-style:italic;margin-bottom:.4rem;
+  line-height:1.5;
+}
+
+/* SIDEBAR */
+.sidebar{}
+.sidebar-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:2px;padding:1.5rem;
+  margin-bottom:1.5rem;
+}
+.sidebar-card-title{
+  font-family:'Fraunces',serif;
+  font-size:1rem;font-weight:700;
+  color:var(--ink);margin-bottom:1rem;
+}
+
+/* AUTHOR MINI */
+.author-mini{display:flex;gap:1rem;align-items:flex-start}
+.author-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--ink);color:var(--bg);
+  font-family:'Fraunces',serif;font-size:1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  letter-spacing:.02em;
+}
+.author-mini-name{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--ink)}
+.author-mini-title{font-family:var(--mono);font-size:.65rem;color:var(--ink3);letter-spacing:.04em;margin-bottom:.5rem}
+.author-mini-bio{font-size:.82rem;color:var(--ink2);line-height:1.5;font-style:italic}
+.author-mini-link{
+  display:inline-block;margin-top:.6rem;
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);cursor:pointer;text-decoration:none;
+}
+
+/* TOPICS */
+.topics{display:flex;flex-wrap:wrap;gap:.5rem}
+.topic-pill{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--border);
+  padding:.3rem .7rem;border-radius:2px;
+  color:var(--ink2);cursor:pointer;
+  transition:all .15s;
+}
+.topic-pill:hover{border-color:var(--accent);color:var(--accent)}
+
+/* NEWSLETTER CARD */
+.newsletter-card{
+  background:var(--ink);padding:1.5rem;
+  border-radius:2px;margin-bottom:1.5rem;
+}
+.newsletter-card h3{
+  font-family:'Fraunces',serif;font-size:1.05rem;
+  color:#fff;margin-bottom:.4rem;font-weight:700;
+}
+.newsletter-card p{
+  font-size:.82rem;color:rgba(255,255,255,.55);
+  margin-bottom:1rem;font-style:italic;line-height:1.5;
+}
+.newsletter-card input{
+  width:100%;padding:.6rem .9rem;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);color:#fff;
+  border-radius:2px;font-family:'DM Serif Text',serif;
+  font-size:.85rem;outline:none;margin-bottom:.6rem;
+}
+.newsletter-card input::placeholder{color:rgba(255,255,255,.3)}
+
+/* ══════════════ ARTICLE PAGE ══════════════ */
+.article-outer{max-width:720px;margin:0 auto;padding:3rem 1.5rem 6rem}
+
+.article-back{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.68rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);cursor:pointer;margin-bottom:2.5rem;
+  background:none;border:none;transition:color .15s;
+}
+.article-back:hover{color:var(--accent)}
+.article-back svg{width:14px;height:14px}
+
+.article-tag-row{display:flex;gap:.5rem;margin-bottom:1.2rem;align-items:center}
+.series-label{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);
+}
+
+h1.a-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2rem,5vw,2.9rem);
+  font-weight:900;line-height:1.1;
+  letter-spacing:-.025em;color:var(--ink);
+  margin-bottom:.75rem;
+}
+.a-subtitle{
+  font-size:1.05rem;color:var(--ink2);
+  font-style:italic;margin-bottom:2rem;
+  line-height:1.55;
+}
+
+/* BYLINE */
+.byline{
+  display:flex;align-items:center;gap:1rem;
+  padding:1.25rem 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  margin-bottom:1rem;
+}
+.byline-av{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--ink);color:var(--bg);
+  font-family:'Fraunces',serif;font-size:.85rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.byline-info{flex:1}
+.byline-name{font-size:.88rem;font-weight:700;color:var(--ink);font-family:'Fraunces',serif}
+.byline-date{font-family:var(--mono);font-size:.65rem;color:var(--ink3);margin-top:.1rem;letter-spacing:.04em}
+
+/* ENGAGE */
+.engage{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.85rem 0;border-bottom:1px solid var(--border);
+  margin-bottom:3rem;
+}
+.engage-left{display:flex;gap:1rem}
+.engage-btn{
+  display:flex;align-items:center;gap:.4rem;
+  background:none;border:none;cursor:pointer;
+  color:var(--ink3);font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.04em;padding:.3rem .6rem;border-radius:2px;
+  transition:all .15s;
+}
+.engage-btn:hover{color:var(--ink);background:var(--bg2)}
+.engage-btn.liked{color:var(--accent)}
+.engage-btn svg{width:15px;height:15px}
+.share-btn{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
+  text-transform:uppercase;padding:.35rem 1rem;
+  border:1px solid var(--border);background:none;
+  color:var(--ink2);border-radius:2px;cursor:pointer;
+  transition:all .15s;
+}
+.share-btn:hover{border-color:var(--ink2);color:var(--ink)}
+
+/* ARTICLE BODY */
+.a-body{font-size:1rem;line-height:1.82}
+.a-body p{margin-bottom:1.6rem;color:var(--ink)}
+.a-body h2{
+  font-family:'Fraunces',serif;
+  font-size:1.6rem;font-weight:700;letter-spacing:-.02em;
+  color:var(--ink);margin:3rem 0 1rem;
+  padding-top:2rem;border-top:1px solid var(--border);
+}
+.a-body h3{
+  font-family:'Fraunces',serif;
+  font-size:1.2rem;font-weight:600;
+  color:var(--ink);margin:2rem 0 .75rem;
+}
+
+/* TOC */
+.toc{
+  background:var(--bg2);border-left:3px solid var(--accent);
+  padding:1.4rem 1.6rem;margin:2rem 0 2.5rem;border-radius:0 2px 2px 0;
+}
+.toc-hd{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:.9rem;
+}
+.toc ol{list-style:none;counter-reset:toc;padding:0}
+.toc ol li{counter-increment:toc;display:flex;gap:.7rem;align-items:baseline;margin-bottom:.4rem}
+.toc ol li::before{
+  content:counter(toc)'.';
+  font-family:var(--mono);font-size:.7rem;color:var(--accent);flex-shrink:0;
+}
+.toc a{font-size:.9rem;color:var(--ink);text-decoration:none}
+.toc a:hover{color:var(--accent)}
+
+/* Pullquote */
+.pullquote{
+  border:none;padding:1.8rem 2rem;
+  margin:2.5rem -1rem;background:var(--ink);
+  border-radius:2px;
+}
+.pullquote p{
+  font-family:'Fraunces',serif;
+  font-size:1.2rem;font-style:italic;font-weight:300;
+  color:var(--bg);line-height:1.55;margin:0;
+}
+
+/* Callout */
+.callout{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:2px;padding:1.3rem 1.5rem;margin:2rem 0;
+}
+.callout-tag{
+  font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:.5rem;font-weight:500;
+}
+.callout p{margin:0;font-size:.92rem;color:var(--ink2);font-style:italic}
+
+/* Lists */
+.a-body ul{list-style:none;margin:1rem 0 1.8rem;padding:0}
+.a-body ul li{
+  padding:.3rem 0 .3rem 1.6rem;
+  position:relative;color:var(--ink);font-size:.98rem;
+}
+.a-body ul li::before{
+  content:'→';position:absolute;left:0;
+  color:var(--accent);font-style:normal;
+}
+.a-body ol{list-style:none;counter-reset:ol;margin:1rem 0 1.8rem;padding:0}
+.a-body ol li{
+  counter-increment:ol;
+  display:flex;gap:1rem;align-items:flex-start;
+  margin-bottom:1.2rem;padding-bottom:1.2rem;
+  border-bottom:1px solid var(--border);
+}
+.a-body ol li:last-child{border-bottom:none}
+.a-body ol li::before{
+  content:counter(ol);
+  font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;
+  color:var(--border);line-height:1;flex-shrink:0;
+  width:2.2rem;text-align:right;
+}
+.a-body ol li strong{display:block;margin-bottom:.2rem;font-weight:700}
+code{
+  font-family:var(--mono);font-size:.8rem;
+  background:var(--bg2);color:var(--accent);
+  padding:.15em .45em;border-radius:2px;
+  border:1px solid var(--border);
+}
+.series-note{
+  font-style:italic;color:var(--ink3);font-size:.88rem;
+  padding:1.2rem;background:var(--bg2);border-radius:2px;
+  margin:2rem 0;line-height:1.6;
+}
+.divider{
+  display:flex;align-items:center;gap:1rem;
+  margin:2.5rem 0;color:var(--ink3);
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em}
+
+/* ARTICLE FOOTER */
+.a-footer{border-top:1px solid var(--border);margin-top:4rem;padding-top:2.5rem}
+.subscribe-dark{
+  background:var(--ink);padding:2.5rem;border-radius:2px;
+  text-align:center;margin-bottom:2.5rem;
+}
+.subscribe-dark h3{
+  font-family:'Fraunces',serif;font-size:1.4rem;
+  color:#fff;margin-bottom:.4rem;
+}
+.subscribe-dark p{color:rgba(255,255,255,.5);font-size:.88rem;margin-bottom:1.2rem;font-style:italic}
+.sub-form{display:flex;gap:.5rem;max-width:380px;margin:0 auto}
+.sub-form input{
+  flex:1;padding:.65rem 1rem;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);color:#fff;
+  border-radius:2px;font-family:'DM Serif Text',serif;font-size:.85rem;outline:none;
+}
+.sub-form input::placeholder{color:rgba(255,255,255,.3)}
+
+/* ══════════════ AUTHOR PAGE ══════════════ */
+.author-page{max-width:720px;margin:0 auto;padding:4rem 1.5rem 6rem}
+.author-hero{
+  display:flex;gap:2.5rem;align-items:flex-start;
+  padding-bottom:3rem;border-bottom:1px solid var(--border);margin-bottom:3rem;
+}
+@media(max-width:600px){.author-hero{flex-direction:column;gap:1.5rem}}
+.author-big-av{
+  width:96px;height:96px;border-radius:50%;flex-shrink:0;
+  background:var(--ink);color:var(--bg);
+  font-family:'Fraunces',serif;font-size:2rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+.author-page h1{
+  font-family:'Fraunces',serif;font-size:2rem;
+  font-weight:900;letter-spacing:-.02em;margin-bottom:.2rem;
+}
+.author-title{
+  font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:1rem;
+}
+.author-bio-text{
+  font-size:.97rem;color:var(--ink2);line-height:1.75;
+  font-style:italic;margin-bottom:1.2rem;
+}
+.author-links{display:flex;gap:.6rem;flex-wrap:wrap}
+.author-link{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--border);padding:.3rem .8rem;
+  border-radius:2px;color:var(--ink2);text-decoration:none;
+  transition:all .15s;cursor:pointer;
+}
+.author-link:hover{border-color:var(--accent);color:var(--accent)}
+.author-stats{
+  display:flex;gap:2rem;padding:1.5rem 0;
+  border-top:1px solid var(--border);margin-top:1.5rem;
+}
+.a-stat-n{
+  font-family:'Fraunces',serif;font-size:1.6rem;
+  font-weight:900;color:var(--ink);display:block;
+}
+.a-stat-l{
+  font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+}
+
+/* ══════════════ FOOTER ══════════════ */
+.site-footer{
+  background:var(--ink);padding:3rem 2rem;
+  text-align:center;
+}
+.footer-logo{
+  font-family:'Fraunces',serif;font-size:1.5rem;
+  font-weight:900;color:#fff;margin-bottom:.5rem;
+  letter-spacing:-.01em;
+}
+.footer-logo span{color:var(--accent)}
+.footer-sub{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.08em;color:rgba(255,255,255,.3);
+  margin-bottom:1.5rem;
+}
+.footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem}
+.footer-link{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);cursor:pointer;text-decoration:none;
+  transition:color .15s;border:none;background:none;
+}
+.footer-link:hover{color:rgba(255,255,255,.8)}
+.footer-copy{
+  font-family:var(--mono);font-size:.62rem;
+  color:rgba(255,255,255,.2);letter-spacing:.04em;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.fade-up{animation:fadeUp .5s ease both}
+.fd1{animation-delay:.05s}.fd2{animation-delay:.1s}
+.fd3{animation-delay:.15s}.fd4{animation-delay:.2s}
+.fd5{animation-delay:.25s}.fd6{animation-delay:.3s}
+
+@media(max-width:600px){
+  .nav-links{display:none}
+  .nav{padding:0 1rem}
+  .hero{padding:3rem 1.2rem 2.5rem}
+  .hero-subscribe{flex-direction:column}
+  .stats{gap:1.5rem}
+  .home-body{padding:2rem 1rem}
+  .pullquote{margin:2rem 0}
+  .sub-form{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ══════ NAV ══════ -->
+<nav class="nav">
+  <div class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <span class="nav-logo-text">Prompt<span>Strike</span></span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="showPage('home')">Home</button>
+    <button class="nav-link" onclick="showPage('article')">Articles</button>
+    <button class="nav-link" onclick="showPage('author')">About</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleDark()" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <!-- Moon (shown in light mode) -->
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <!-- Sun (shown in dark mode) -->
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <button class="btn btn-ghost" onclick="showPage('author')">Sign in</button>
+    <button class="btn btn-primary" onclick="document.getElementById('hero-email').focus();showPage('home')">Subscribe</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     PAGE 1: HOME
+══════════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-dot"></span>
+      Offensive AI Security Research
+    </div>
+    <h1 class="fade-up fd1">Breaking <em>AI</em><br/>before it breaks you</h1>
+    <p class="hero-sub fade-up fd2">Deep-dive research on LLM vulnerabilities, red teaming techniques, and adversarial AI — by Bharath Haveli Bhadhu Rao.</p>
+    <div class="hero-subscribe fade-up fd3">
+      <input type="email" id="hero-email" placeholder="your@email.com"/>
+      <button class="btn btn-primary" onclick="handleSubscribe()">Subscribe free</button>
+    </div>
+    <p class="hero-note fade-up fd4">Join 1,200+ security researchers · No spam · Unsubscribe anytime</p>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><span class="stat-n">1,200+</span><span class="stat-l">Subscribers</span></div>
+    <div class="stat"><span class="stat-n">24</span><span class="stat-l">Articles</span></div>
+    <div class="stat"><span class="stat-n">5</span><span class="stat-l">Series</span></div>
+    <div class="stat"><span class="stat-n">48K+</span><span class="stat-l">Monthly Reads</span></div>
+  </div>
+
+  <!-- MAIN BODY -->
+  <div class="home-body">
+    <main>
+      <div class="section-label">Latest Articles</div>
+
+      <!-- FEATURED POST -->
+      <article class="post-featured fade-up fd2" onclick="showPage('article')">
+        <span class="post-tag">LLM Red Teaming · Series</span>
+        <div class="post-title">LLM Red Teaming — What Traditional Offensive Security Misses About AI Systems</div>
+        <p class="post-excerpt">Most security professionals approaching AI systems for the first time are asking the wrong questions. Not because they lack skill — but because the mental model built for traditional software doesn't map cleanly to systems that generate behavior.</p>
+        <div class="post-meta">
+          <span>Mar 12, 2026</span>
+          <span class="post-meta-dot">·</span>
+          <span>12 min read</span>
+          <span class="post-meta-dot">·</span>
+          <span>Part 1 of 5</span>
+        </div>
+        <button class="read-more" style="margin-top:.8rem">
+          Read article
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </article>
+
+      <!-- POST LIST -->
+      <div class="section-label" style="margin-top:.5rem">More Articles</div>
+
+      <article class="post-item fade-up fd3" onclick="showPage('article')">
+        <div class="post-num">02</div>
+        <div>
+          <span class="post-tag" style="font-size:.58rem">Prompt Injection</span>
+          <div class="post-item-title">Indirect Prompt Injection: How RAG Pipelines Become Attack Vectors</div>
+          <p class="post-item-excerpt">When your AI reads attacker-controlled documents, every retrieval is a potential exploit.</p>
+          <div class="post-meta"><span>Feb 28, 2026</span><span class="post-meta-dot">·</span><span>9 min read</span></div>
+        </div>
+      </article>
+
+      <article class="post-item fade-up fd4" onclick="showPage('article')">
+        <div class="post-num">03</div>
+        <div>
+          <span class="post-tag" style="font-size:.58rem">Agentic AI</span>
+          <div class="post-item-title">Trust Boundaries in Multi-Agent Systems: A Security Void</div>
+          <p class="post-item-excerpt">Nobody agrees on how agents should verify each other's identity. Attackers already know.</p>
+          <div class="post-meta"><span>Feb 14, 2026</span><span class="post-meta-dot">·</span><span>11 min read</span></div>
+        </div>
+      </article>
+
+      <article class="post-item fade-up fd5" onclick="showPage('article')">
+        <div class="post-num">04</div>
+        <div>
+          <span class="post-tag" style="font-size:.58rem">Jailbreaking</span>
+          <div class="post-item-title">The Jailbreak Taxonomy: Categorizing 47 Techniques Across 8 Frontier Models</div>
+          <p class="post-item-excerpt">A systematic study of what works, what doesn't, and why alignment is probabilistic — not absolute.</p>
+          <div class="post-meta"><span>Jan 30, 2026</span><span class="post-meta-dot">·</span><span>18 min read</span></div>
+        </div>
+      </article>
+
+      <article class="post-item fade-up fd6" onclick="showPage('article')">
+        <div class="post-num">05</div>
+        <div>
+          <span class="post-tag" style="font-size:.58rem">Threat Modeling</span>
+          <div class="post-item-title">Building an LLM Threat Model: A Practitioner's Framework</div>
+          <p class="post-item-excerpt">STRIDE doesn't translate. Here's what actually works when you're modeling an AI-powered system.</p>
+          <div class="post-meta"><span>Jan 12, 2026</span><span class="post-meta-dot">·</span><span>14 min read</span></div>
+        </div>
+      </article>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- AUTHOR CARD -->
+      <div class="sidebar-card fade-up fd2">
+        <div class="sidebar-card-title">About the author</div>
+        <div class="author-mini">
+          <div class="author-avatar">BH</div>
+          <div>
+            <div class="author-mini-name">Bharath H. B. Rao</div>
+            <div class="author-mini-title">AI Security Researcher</div>
+            <div class="author-mini-bio">Security reviews, threat modeling, and red teaming on LLM systems. Writing about what actually breaks AI.</div>
+            <button class="author-mini-link" onclick="showPage('author')">Full bio →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEWSLETTER -->
+      <div class="newsletter-card fade-up fd3">
+        <h3>Get every issue</h3>
+        <p>New research every two weeks. No fluff, no hype.</p>
+        <input type="email" placeholder="your@email.com"/>
+        <button class="btn btn-primary" style="width:100%" onclick="handleSubscribe()">Subscribe free</button>
+      </div>
+
+      <!-- TOPICS -->
+      <div class="sidebar-card fade-up fd4">
+        <div class="sidebar-card-title">Topics</div>
+        <div class="topics">
+          <span class="topic-pill">LLM Red Teaming</span>
+          <span class="topic-pill">Prompt Injection</span>
+          <span class="topic-pill">Jailbreaking</span>
+          <span class="topic-pill">Agentic AI</span>
+          <span class="topic-pill">RAG Security</span>
+          <span class="topic-pill">Threat Modeling</span>
+          <span class="topic-pill">AI Safety</span>
+          <span class="topic-pill">Data Poisoning</span>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- SITE FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-logo">Prompt<span>Strike</span></div>
+    <div class="footer-sub">Offensive AI Security Research</div>
+    <div class="footer-links">
+      <button class="footer-link" onclick="showPage('home')">Home</button>
+      <button class="footer-link" onclick="showPage('article')">Articles</button>
+      <button class="footer-link" onclick="showPage('author')">About</button>
+      <a class="footer-link" href="#">Twitter / X</a>
+      <a class="footer-link" href="#">RSS</a>
+    </div>
+    <div class="footer-copy">© 2026 Bharath Haveli Bhadhu Rao · PromptStrike</div>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 2: ARTICLE
+══════════════════════════════════════ -->
+<div id="page-article" class="page">
+  <div class="article-outer">
+
+    <button class="article-back" onclick="showPage('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to all articles
+    </button>
+
+    <div class="article-tag-row fade-up fd1">
+      <span class="post-tag">LLM Red Teaming</span>
+      <span class="series-label">· Part 1 of 5</span>
+    </div>
+
+    <h1 class="a-title fade-up fd2">LLM Red Teaming — What Traditional Offensive Security Misses About AI Systems</h1>
+    <p class="a-subtitle fade-up fd3">Part 1: How LLMs Actually Work — and why the mental models you built for software don't apply here.</p>
+
+    <div class="byline fade-up fd4">
+      <div class="byline-av">BH</div>
+      <div class="byline-info">
+        <div class="byline-name">Bharath Haveli Bhadhu Rao</div>
+        <div class="byline-date">MAR 12, 2026 &nbsp;·&nbsp; 12 MIN READ</div>
+      </div>
+      <button class="btn btn-ghost">Subscribe</button>
+    </div>
+
+    <div class="engage fade-up fd5">
+      <div class="engage-left">
+        <button class="engage-btn" id="like-btn" onclick="toggleLike()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span id="like-count">4</span>
+        </button>
+        <button class="engage-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Comment
+        </button>
+        <button class="engage-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          4
+        </button>
+      </div>
+      <button class="share-btn" onclick="handleShare()">Share</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="a-body">
+
+      <p>Most security professionals approaching AI systems for the first time are asking the wrong questions. Not because they lack skill — but because the mental model built for traditional software doesn't map cleanly to systems that <em>generate behavior</em>.</p>
+
+      <p>I've spent the last few years doing security reviews, threat modeling, and security validation testing on LLM systems, and the same blind spots come up every time. This series is my attempt to close them: how LLMs work, how they break, and what it actually looks like to assess one as a security engagement.</p>
+
+      <p>Before diving into LLM attacks, it's important to first understand how these systems actually work. This article will cover the following:</p>
+
+      <div class="toc">
+        <div class="toc-hd">In this article</div>
+        <ol>
+          <li><a href="#arch">Overview of LLM Architecture</a></li>
+          <li><a href="#lifecycle">The LLM Lifecycle</a></li>
+          <li><a href="#extending">Extending LLM Capabilities</a></li>
+        </ol>
+      </div>
+
+      <p class="series-note">📌 This is Part 1 of the <em>LLM Red Teaming</em> mini-series. Each part builds on the last, starting here with foundations, moving into attacks, and eventually into what a real security assessment looks like in practice.</p>
+
+      <div class="divider"><span>§</span></div>
+
+      <h2 id="arch">Overview of LLM Architecture</h2>
+
+      <p>At their core, large language models are <strong>next-token predictors</strong>. Given a sequence of tokens, they output a probability distribution over what comes next. That's it. Everything else — reasoning, instruction following, refusing harmful requests — is emergent behavior arising from training at enormous scale.</p>
+
+      <div class="pullquote">
+        <p>"The model doesn't 'understand' your prompt the way you understand it. It pattern-matches against trillions of training examples to predict the most statistically likely continuation."</p>
+      </div>
+
+      <p>This is where most red teamers go wrong first: they bring assumptions about deterministic logic. Traditional software has code paths. An LLM has a <em>weight space</em> — a continuous function trained to approximate the distribution of human-generated text.</p>
+
+      <h3>The Transformer Architecture</h3>
+      <p>Modern LLMs are built on the transformer architecture. The key mechanisms to understand from a security perspective:</p>
+
+      <ul>
+        <li><strong>Attention heads</strong> — relate tokens across the entire context window simultaneously</li>
+        <li><strong>Context window</strong> — the max token sequence processable at once (8K–200K in frontier models)</li>
+        <li><strong>Softmax temperature</strong> — controls output randomness; harder to predict at high values</li>
+        <li><strong>System prompt</strong> — a privileged prefix in the context window used to configure behavior</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-tag">⚡ Security Implication</div>
+        <p>The system prompt isn't a security boundary. It's text in the same context window as everything else. A model trained to follow instructions will, under some conditions, follow instructions that override it. This is the root cause of prompt injection.</p>
+      </div>
+
+      <div class="divider"><span>§</span></div>
+
+      <h2 id="lifecycle">The LLM Lifecycle</h2>
+      <p>Understanding the lifecycle is critical — vulnerabilities can be introduced at any stage, and different stages require different attack strategies.</p>
+
+      <ol>
+        <li>
+          <strong>Pre-training</strong>
+          <span>Trained on massive internet-scale corpora. The model learns language, world knowledge, and implicit biases. Backdoors can be introduced here through data poisoning.</span>
+        </li>
+        <li>
+          <strong>Supervised Fine-Tuning (SFT)</strong>
+          <span>Human-generated demonstrations teach the model to follow instructions. Fine-tune datasets are high-value targets for supply chain attacks.</span>
+        </li>
+        <li>
+          <strong>RLHF / Alignment</strong>
+          <span>Reinforcement Learning from Human Feedback steers behavior toward helpful, harmless outputs. This layer is imperfect and can often be bypassed with the right prompt structure.</span>
+        </li>
+        <li>
+          <strong>Deployment</strong>
+          <span>The model is served behind an API with a system prompt, optional tools, and retrieval pipelines. Most real-world attacks happen here.</span>
+        </li>
+      </ol>
+
+      <div class="pullquote">
+        <p>"Alignment isn't a security control. It's a behavioral tendency. And like any behavioral tendency, it has edges."</p>
+      </div>
+
+      <div class="divider"><span>§</span></div>
+
+      <h2 id="extending">Extending LLM Capabilities</h2>
+      <p>Bare LLMs are rarely deployed in isolation. Production systems extend them in ways that dramatically expand the attack surface:</p>
+
+      <h3>Retrieval-Augmented Generation (RAG)</h3>
+      <p>A vector database retrieves relevant document chunks and injects them into the context window at inference time. Attack surfaces: <code>document poisoning</code>, <code>embedding inversion</code>, and indirect prompt injection via retrieved content.</p>
+
+      <h3>Tool Use / Function Calling</h3>
+      <p>The model is given access to tools — web search, code execution, API calls, database queries. The model decides which tools to call and with what arguments. This creates <strong>agentic attack chains</strong>: a prompt injection in a retrieved document can trigger arbitrary tool calls.</p>
+
+      <h3>Multi-Agent Systems</h3>
+      <p>Increasingly, LLMs orchestrate other LLMs. Trust boundaries between agents are almost universally underspecified. An attacker who controls input to one agent can often influence the behavior of the entire pipeline.</p>
+
+      <div class="callout">
+        <div class="callout-tag">📬 Coming up in Part 2</div>
+        <p>We'll move from architecture to attacks — prompt injection, jailbreaking, data exfiltration via model outputs, and how to build a threat model specific to LLM systems.</p>
+      </div>
+
+    </div><!-- /a-body -->
+
+    <!-- ARTICLE FOOTER -->
+    <div class="a-footer">
+      <div class="subscribe-dark">
+        <h3>Stay ahead of the threat curve</h3>
+        <p>New parts drop every two weeks. No fluff — just applied AI security research.</p>
+        <div class="sub-form">
+          <input type="email" placeholder="your@email.com"/>
+          <button class="btn btn-primary" onclick="handleSubscribe()">Subscribe</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+        <button class="article-back" onclick="showPage('home')" style="margin:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          All articles
+        </button>
+        <div style="font-family:var(--mono);font-size:.65rem;color:var(--ink3)">© 2026 PromptStrike</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 3: AUTHOR
+══════════════════════════════════════ -->
+<div id="page-author" class="page">
+  <div class="author-page">
+
+    <button class="article-back" onclick="showPage('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to home
+    </button>
+
+    <div class="author-hero fade-up fd1">
+      <div class="author-big-av">BH</div>
+      <div>
+        <h1>Bharath Haveli<br/>Bhadhu Rao</h1>
+        <div class="author-title">AI Security Researcher & Red Teamer</div>
+        <p class="author-bio-text">I spend my days breaking AI systems so you don't have to find out the hard way they were broken. Over the last few years I've done security reviews, threat modeling, and security validation testing on LLM systems across fintech, healthtech, and enterprise SaaS — and the same blind spots come up every time.</p>
+        <p class="author-bio-text">PromptStrike is my attempt to close those blind spots for the broader security community: how LLMs work under the hood, how they fail under adversarial conditions, and what real security assessments look like when the target is an AI system.</p>
+        <div class="author-links">
+          <a class="author-link" href="#">Twitter / X</a>
+          <a class="author-link" href="#">LinkedIn</a>
+          <a class="author-link" href="#">GitHub</a>
+          <a class="author-link" href="#">Email</a>
+        </div>
+        <div class="author-stats">
+          <div><span class="a-stat-n">24</span><span class="a-stat-l">Articles</span></div>
+          <div><span class="a-stat-n">5</span><span class="a-stat-l">Series</span></div>
+          <div><span class="a-stat-n">1,200+</span><span class="a-stat-l">Subscribers</span></div>
+          <div><span class="a-stat-n">2024</span><span class="a-stat-l">Founded</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label fade-up fd2">Articles by Bharath</div>
+
+    <article class="post-item fade-up fd3" onclick="showPage('article')">
+      <div class="post-num">01</div>
+      <div>
+        <span class="post-tag" style="font-size:.58rem">LLM Red Teaming</span>
+        <div class="post-item-title">LLM Red Teaming — What Traditional Offensive Security Misses About AI Systems</div>
+        <div class="post-meta"><span>Mar 12, 2026</span><span class="post-meta-dot">·</span><span>12 min read</span></div>
+      </div>
+    </article>
+
+    <article class="post-item fade-up fd4" onclick="showPage('article')">
+      <div class="post-num">02</div>
+      <div>
+        <span class="post-tag" style="font-size:.58rem">Prompt Injection</span>
+        <div class="post-item-title">Indirect Prompt Injection: How RAG Pipelines Become Attack Vectors</div>
+        <div class="post-meta"><span>Feb 28, 2026</span><span class="post-meta-dot">·</span><span>9 min read</span></div>
+      </div>
+    </article>
+
+    <article class="post-item fade-up fd5" onclick="showPage('article')">
+      <div class="post-num">03</div>
+      <div>
+        <span class="post-tag" style="font-size:.58rem">Agentic AI</span>
+        <div class="post-item-title">Trust Boundaries in Multi-Agent Systems: A Security Void</div>
+        <div class="post-meta"><span>Feb 14, 2026</span><span class="post-meta-dot">·</span><span>11 min read</span></div>
+      </div>
+    </article>
+
+    <div style="margin-top:4rem;border-top:1px solid var(--border);padding-top:2.5rem">
+      <div class="subscribe-dark">
+        <h3>Follow the research</h3>
+        <p>Get every new piece delivered to your inbox.</p>
+        <div class="sub-form">
+          <input type="email" placeholder="your@email.com"/>
+          <button class="btn btn-primary" onclick="handleSubscribe()">Subscribe free</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-logo">Prompt<span>Strike</span></div>
+    <div class="footer-sub">Offensive AI Security Research</div>
+    <div class="footer-links">
+      <button class="footer-link" onclick="showPage('home')">Home</button>
+      <button class="footer-link" onclick="showPage('article')">Articles</button>
+      <button class="footer-link" onclick="showPage('author')">About</button>
+    </div>
+    <div class="footer-copy">© 2026 Bharath Haveli Bhadhu Rao · PromptStrike</div>
+  </footer>
+</div>
+
+<!-- ══════ SUBSCRIBE TOAST ══════ -->
+<div id="toast" style="
+  position:fixed;bottom:2rem;right:2rem;z-index:500;
+  background:var(--ink);color:#fff;
+  font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;
+  padding:.9rem 1.4rem;border-radius:2px;
+  transform:translateY(120%);transition:transform .3s ease;
+  display:flex;align-items:center;gap:.6rem;
+">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  Subscribed! Welcome to PromptStrike.
+</div>
+
+<script>
+// DARK MODE — persist preference
+function toggleDark(){
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('ps-theme', isDark ? 'dark' : 'light');
+}
+// Apply saved preference on load
+(function(){
+  const saved = localStorage.getItem('ps-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if(saved === 'dark' || (!saved && prefersDark)){
+    document.documentElement.classList.add('dark');
+  }
+})();
+
+// PAGE ROUTING
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  // reset animations
+  document.querySelectorAll('.fade-up').forEach(el=>{
+    el.style.animation='none';
+    el.offsetHeight;
+    el.style.animation='';
+  });
+}
+
+// READING PROGRESS (article page only)
+window.addEventListener('scroll',()=>{
+  const bar=document.getElementById('progress');
+  const s=window.scrollY;
+  const t=document.body.scrollHeight-window.innerHeight;
+  bar.style.width=Math.min(100,(s/t)*100)+'%';
+});
+
+// LIKE BUTTON
+let liked=false,likeCount=4;
+function toggleLike(){
+  liked=!liked;
+  likeCount+=liked?1:-1;
+  document.getElementById('like-count').textContent=likeCount;
+  const btn=document.getElementById('like-btn');
+  btn.classList.toggle('liked',liked);
+}
+
+// SUBSCRIBE TOAST
+function handleSubscribe(){
+  const toast=document.getElementById('toast');
+  toast.style.transform='translateY(0)';
+  setTimeout(()=>toast.style.transform='translateY(120%)',3500);
+}
+
+// SHARE
+function handleShare(){
+  if(navigator.share){
+    navigator.share({title:'PromptStrike',url:window.location.href});
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(()=>handleSubscribe());
+  }
+}
+</script>
+</body>
+</html>
